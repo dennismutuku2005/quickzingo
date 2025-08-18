@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:quickzingo/pages/cregister_page.dart';
 import 'package:quickzingo/pages/iregister_page.dart';
@@ -124,7 +126,7 @@ class _UserTypePageState extends State<UserTypePage> {
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected ? const Color(0xFFFAC638) : Colors.grey[300]!,
-            width: 1.5,
+            width: 0,
           ),
           color: Colors.white,
           boxShadow: isSelected
@@ -192,7 +194,7 @@ class _UserTypePageState extends State<UserTypePage> {
                 shape: BoxShape.circle,
                 border: Border.all(
                   color: isSelected
-                      ? const Color(0xFFFAC638)
+                      ? const Color.fromARGB(0, 255, 255, 255)
                       : Colors.grey[400]!,
                   width: 2,
                 ),

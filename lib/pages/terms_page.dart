@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:quickzingo/pages/landing_page.dart';
 import 'package:quickzingo/pages/type_page.dart';
 
 class TermsPage extends StatefulWidget {
@@ -198,7 +199,7 @@ Thank you for choosing QuickZingo - Your trusted delivery partner in Nairobi!"""
                       padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
                     onPressed: () {
-                      Navigator.pop(context);
+                       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) =>LandingPage()));
                     },
                     child: const Text(
                       "Decline",

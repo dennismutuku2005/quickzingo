@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:quickzingo/pages/login_page.dart';
 import 'terms_page.dart'; // Import the terms page
 
 class LandingPage extends StatelessWidget {
@@ -39,10 +40,9 @@ class LandingPage extends StatelessWidget {
                   
                   const SizedBox(height: 16),
                   
-                  // Sign In Option
-                  _buildSignInOption(),
-                  
-                  const SizedBox(height: 20),
+                  // Sign In Option - Pass context here
+                  _buildSignInOption(context),
+
                 ],
               ),
             ),
@@ -190,11 +190,13 @@ class LandingPage extends StatelessWidget {
     );
   }
 
-  Widget _buildSignInOption() {
+  Widget _buildSignInOption(BuildContext context) {
     return TextButton(
       onPressed: () {
-        // Navigate to sign in screen
-        // Navigator.push(context, MaterialPageRoute(builder: (context) => SignInScreen()));
+        Navigator.push(
+          context, 
+          MaterialPageRoute(builder: (context) => const LoginPage())
+        );
       },
       child: RichText(
         text: const TextSpan(
@@ -215,47 +217,6 @@ class LandingPage extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  // Helper method for feature items (if needed later)
-  Widget _buildFeatureItem({required IconData icon, required String text}) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.1),
-          width: 1,
-        ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: const Color(0xFFFAC638).withOpacity(0.2),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(
-              icon,
-              color: const Color(0xFFFAC638),
-              size: 16,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Text(
-            text,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
       ),
     );
   }

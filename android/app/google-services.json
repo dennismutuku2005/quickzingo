@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1052908624018",
+    "project_id": "quickzingo-d1155",
+    "storage_bucket": "quickzingo-d1155.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1052908624018:android:15a2ef922935d41b3cae4b",
+        "android_client_info": {
+          "package_name": "com.example.quickzingo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyACsha8zTygo_g8sXZdzmJe3S8FDr5NcAU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
