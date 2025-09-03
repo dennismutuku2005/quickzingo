@@ -1,10 +1,10 @@
-// ignore_for_file: deprecated_member_use
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final Map<String, dynamic> userData;
+
+  const HomePage({super.key, required this.userData});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -12,7 +12,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final TextEditingController _searchController = TextEditingController();
-  
+
   final List<Map<String, dynamic>> recentOrders = [
     {
       'id': 'QZ001',
@@ -55,8 +55,8 @@ class _HomePageState extends State<HomePage> {
       'color': Color(0xFF2196F3),
     },
     {
-      'icon': Icons.rocket_launch_outlined,
-      'title': 'Jetpack',
+      'icon': Icons.food_bank_outlined,
+      'title': 'Food',
       'color': Color(0xFF9C27B0),
     },
     {
@@ -110,13 +110,8 @@ class _HomePageState extends State<HomePage> {
       body: Stack(
         children: [
           // Fixed Header
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: _buildHeader(),
-          ),
-          
+          Positioned(top: 0, left: 0, right: 0, child: _buildHeader()),
+
           // Scrollable Content with top padding
           Positioned.fill(
             top: 160, // Height of the fixed header
@@ -148,11 +143,15 @@ class _HomePageState extends State<HomePage> {
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: services.map((service) => _buildServiceItem(
-                            service['icon'],
-                            service['title'],
-                            service['color'],
-                          )).toList(),
+                          children: services
+                              .map(
+                                (service) => _buildServiceItem(
+                                  service['icon'],
+                                  service['title'],
+                                  service['color'],
+                                ),
+                              )
+                              .toList(),
                         ),
                       ),
                     ),
@@ -164,12 +163,13 @@ class _HomePageState extends State<HomePage> {
                       GridView.builder(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 16,
-                          mainAxisSpacing: 16,
-                          childAspectRatio: 1.3,
-                        ),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              crossAxisSpacing: 16,
+                              mainAxisSpacing: 16,
+                              childAspectRatio: 1.3,
+                            ),
                         itemCount: stats.length,
                         itemBuilder: (context, index) {
                           final stat = stats[index];
@@ -197,8 +197,13 @@ class _HomePageState extends State<HomePage> {
                               TextButton(
                                 onPressed: () {},
                                 style: TextButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                  backgroundColor: const Color(0xFFFAC638).withOpacity(0.1),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 8,
+                                  ),
+                                  backgroundColor: const Color(
+                                    0xFFFAC638,
+                                  ).withOpacity(0.1),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
@@ -219,8 +224,10 @@ class _HomePageState extends State<HomePage> {
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
                             itemCount: recentOrders.length,
-                            separatorBuilder: (context, index) => const SizedBox(height: 12),
-                            itemBuilder: (context, index) => _buildOrderCard(recentOrders[index]),
+                            separatorBuilder: (context, index) =>
+                                const SizedBox(height: 12),
+                            itemBuilder: (context, index) =>
+                                _buildOrderCard(recentOrders[index]),
                           ),
                         ],
                       ),
@@ -271,41 +278,51 @@ class _HomePageState extends State<HomePage> {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(25),
-                  
                 ),
-                child: const Icon(
-                  Icons.person,
-                  color: Color(0xFFFAC638),
-                  size: 28,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(25),
+                  child: Image.asset("assets/icon.png", fit: BoxFit.cover),
                 ),
               ),
               const SizedBox(width: 15),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    "Welcome back,",
-                    style: TextStyle(
+                  Text(
+                    widget.userData['account_type'] == 'business'
+                        ? "Your business"
+                        : "Welcome back,",
+                    style: const TextStyle(
                       color: Colors.black54,
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                  const Text(
-                    "Dennis",
-                    style: TextStyle(
+                  Text(
+                    widget.userData['account_name'] ?? 'User',
+                    style: const TextStyle(
                       color: Colors.black87,
                       fontSize: 20,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                 
+                  if (widget.userData['mobile_number'] != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Text(
+                        widget.userData['mobile_number']!,
+                        style: TextStyle(
+                          color: Colors.black.withOpacity(0.6),
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ],
           ),
           const Spacer(),
-          
+
           // Action Buttons
           Row(
             children: [
@@ -323,12 +340,7 @@ class _HomePageState extends State<HomePage> {
     return SizedBox(
       width: 44,
       height: 44,
-    
-      child: Icon(
-        icon,
-        color: Colors.black87,
-        size: 27,
-      ),
+      child: Icon(icon, color: Colors.black87, size: 27),
     );
   }
 
@@ -349,15 +361,8 @@ class _HomePageState extends State<HomePage> {
         controller: _searchController,
         decoration: InputDecoration(
           hintText: "Search orders, customers, packages...",
-          hintStyle: TextStyle(
-            color: Colors.grey[500],
-            fontSize: 16,
-          ),
-          prefixIcon: Icon(
-            Icons.search,
-            color: Colors.grey[500],
-            size: 24,
-          ),
+          hintStyle: TextStyle(color: Colors.grey[500], fontSize: 16),
+          prefixIcon: Icon(Icons.search, color: Colors.grey[500], size: 24),
           suffixIcon: Container(
             margin: const EdgeInsets.all(8),
             decoration: BoxDecoration(
@@ -371,7 +376,10 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 16,
+          ),
         ),
       ),
     );
@@ -416,16 +424,9 @@ class _HomePageState extends State<HomePage> {
             decoration: BoxDecoration(
               color: color.withOpacity(0.1),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: color.withOpacity(0.3),
-                width: 2,
-              ),
+              border: Border.all(color: color.withOpacity(0.3), width: 2),
             ),
-            child: Icon(
-              icon,
-              color: color,
-              size: 28,
-            ),
+            child: Icon(icon, color: color, size: 28),
           ),
           const SizedBox(height: 8),
           Text(
@@ -441,16 +442,19 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildStatCard(String title, String value, IconData icon, Color bgColor, Color iconColor) {
+  Widget _buildStatCard(
+    String title,
+    String value,
+    IconData icon,
+    Color bgColor,
+    Color iconColor,
+  ) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: iconColor.withOpacity(0.2),
-          width: 1,
-        ),
+        border: Border.all(color: iconColor.withOpacity(0.2), width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -462,11 +466,7 @@ class _HomePageState extends State<HomePage> {
               color: iconColor.withOpacity(0.1),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(
-              icon,
-              color: iconColor,
-              size: 20,
-            ),
+            child: Icon(icon, color: iconColor, size: 20),
           ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -498,7 +498,7 @@ class _HomePageState extends State<HomePage> {
   Widget _buildOrderCard(Map<String, dynamic> order) {
     Color statusColor;
     Color statusBgColor;
-    
+
     switch (order['status']) {
       case 'Delivered':
         statusColor = const Color(0xFF4CAF50);
@@ -562,7 +562,10 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: statusBgColor,
                         borderRadius: BorderRadius.circular(6),
@@ -593,10 +596,7 @@ class _HomePageState extends State<HomePage> {
                   children: [
                     Text(
                       order['time'],
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[500],
-                      ),
+                      style: TextStyle(fontSize: 12, color: Colors.grey[500]),
                     ),
                     Text(
                       order['amount'],

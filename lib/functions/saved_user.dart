@@ -5,8 +5,6 @@ class UserPreferences {
   static const String _userKey = 'user_data';
   static const String _isLoggedInKey = 'is_logged_in';
 
-  /// Save user from API response to SharedPreferences
-  /// Takes the complete API response and extracts user data
   static Future<bool> saveUserFromResponse(Map<String, dynamic> apiResponse) async {
     try {
       // Check if the response is successful
@@ -127,78 +125,3 @@ class UserPreferences {
     return await getUserField('account_type');
   }
 }
-
-// Example usage in your registration method:
-/*
-Future<void> _registerCompany() async {
-  setState(() {
-    _isRegisterLoading = true;
-  });
-
-  try {
-    // Your existing API call code...
-    final response = await http.post(
-      Uri.parse('$apiBaseUrl/register_company.php'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-      body: json.encode(requestBody),
-    );
-
-    final Map<String, dynamic> responseData = json.decode(response.body);
-
-    if (response.statusCode == 200 && responseData['success'] == true) {
-      // Save user data using the new function
-      bool savedSuccessfully = await UserPreferences.saveUserFromResponse(responseData);
-      
-      if (savedSuccessfully) {
-        print('User data saved to SharedPreferences successfully');
-        
-        // Get the saved user data for navigation
-        final userData = await UserPreferences.getUser();
-        
-        if (mounted && userData != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text("Welcome ${userData['account_name']}!"),
-              backgroundColor: const Color(0xFFFAC638),
-              behavior: SnackBarBehavior.floating,
-              margin: const EdgeInsets.all(16),
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(8)),
-              ),
-            ),
-          );
-
-          // Convert to String map for MainPage compatibility
-          Map<String, String> userDataString = {};
-          userData.forEach((key, value) {
-            userDataString[key] = value?.toString() ?? '';
-          });
-
-          // Navigate to main page
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => MainPage(userData: userDataString),
-            ),
-          );
-        }
-      } else {
-        print('Failed to save user data to SharedPreferences');
-      }
-    } else {
-      // Handle registration failure...
-    }
-  } catch (error) {
-    // Handle error...
-  } finally {
-    if (mounted) {
-      setState(() {
-        _isRegisterLoading = false;
-      });
-    }
-  }
-}
-*/

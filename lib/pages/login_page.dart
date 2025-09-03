@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
+import 'package:quickzingo/functions/saved_user.dart';
 import 'dart:convert';
 import 'package:quickzingo/pages/forgotten_page.dart';
 import 'package:quickzingo/pages/terms_page.dart';
@@ -69,7 +70,7 @@ class _LoginPageState extends State<LoginPage> {
     return null;
   }
 
-  // Updated Email/Mobile login method with separate loading state
+  // Updated Email/Mobile login method with UserPreferences saving
   Future<void> _signInWithEmailOrMobile() async {
     setState(() {
       _isSignInLoading = true;
@@ -100,6 +101,15 @@ class _LoginPageState extends State<LoginPage> {
       final Map<String, dynamic> responseData = json.decode(response.body);
 
       if (response.statusCode == 200 && responseData['success'] == true) {
+        // Save user data using UserPreferences
+        bool saved = await UserPreferences.saveUserFromResponse(responseData);
+        
+        if (saved) {
+          print('User data saved to SharedPreferences successfully');
+        } else {
+          print('Failed to save user data to SharedPreferences');
+        }
+
         // Login successful
         final userData = responseData['user'] as Map<String, dynamic>;
         
@@ -213,7 +223,7 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  // Google button press handler with separate loading state
+  // Updated Google Sign-In method with UserPreferences saving
   Future<void> _signInWithGoogle() async {
     setState(() {
       _isGoogleLoading = true;
@@ -221,33 +231,76 @@ class _LoginPageState extends State<LoginPage> {
 
     try {
       final User? user = await signInWithGoogle();
-      
+
       if (user != null && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Welcome ${user.displayName ?? 'User'}!"),
-            backgroundColor: const Color(0xFFFAC638),
-            behavior: SnackBarBehavior.floating,
-            margin: const EdgeInsets.all(16),
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(8)),
-            ),
-          ),
+        // Call your backend API with the user's email
+        final response = await http.post(
+          Uri.parse("https://api.quickzingo.com/client/loginwithgoogle.php"),
+          headers: {"Content-Type": "application/json"},
+          body: jsonEncode({"email": user.email}),
         );
 
-        // Navigate to main page for Google sign-in users
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => MainPage(
-              userData: {
-                'user_id': user.uid,
-                'account_name': user.displayName ?? 'User',
-                'email': user.email ?? '',
-              },
+        final data = jsonDecode(response.body);
+
+        if (data["success"] == true) {
+          // Save user data using UserPreferences
+          bool saved = await UserPreferences.saveUserFromResponse(data);
+          
+          if (saved) {
+            print('Google user data saved to SharedPreferences successfully');
+          } else {
+            print('Failed to save Google user data to SharedPreferences');
+          }
+
+          // ✅ User exists in DB
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Welcome ${user.displayName ?? 'User'}!"),
+              backgroundColor: const Color(0xFFFAC638),
+              behavior: SnackBarBehavior.floating,
+              margin: const EdgeInsets.all(16),
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(8)),
+              ),
             ),
-          ),
-        );
+          );
+
+          // Get the saved user data for navigation
+          final savedUserData = await UserPreferences.getUser();
+          Map<String, String> userDataString = {};
+          
+          if (savedUserData != null) {
+            userDataString = {
+              'user_id': savedUserData['user_id']?.toString() ?? '',
+              'account_name': savedUserData['account_name']?.toString() ?? '',
+              'account_type': savedUserData['account_type']?.toString() ?? '',
+              'mobile_number': savedUserData['mobile_number']?.toString() ?? '',
+              'email': savedUserData['email']?.toString() ?? '',
+              'created_at': savedUserData['created_at']?.toString() ?? '',
+              'updated_at': savedUserData['updated_at']?.toString() ?? '',
+            };
+          }
+
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => MainPage(userData: userDataString),
+            ),
+          );
+        } else {
+          // ❌ Email not registered in your DB
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(data["message"] ?? "Email not registered"),
+              backgroundColor: Colors.red,
+              behavior: SnackBarBehavior.floating,
+              margin: const EdgeInsets.all(16),
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(8)),
+              ),
+            ),
+          );
+        }
       }
     } catch (error) {
       if (mounted) {
